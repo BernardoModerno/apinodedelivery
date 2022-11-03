@@ -1,0 +1,6 @@
+npm init
+npm i express
+npm i http
+npm i cors
+npm i morgan
+npm i mysql
