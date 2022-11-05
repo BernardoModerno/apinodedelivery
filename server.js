@@ -4,6 +4,7 @@ const http = require('http');
 const server = http.createServer(app);
 const logger = require('morgan');
 const cors = require('cors');
+const passport = require('passport');
 
 /*
 * IMPORTAR ROTAS
@@ -17,7 +18,14 @@ app.use(express.json());
 app.use(express.urlencoded({
     extended: true
 }));
+
+
 app.use(cors());
+app.use(passport.initialize());
+app.use(passport.session());
+
+require('./config/passport')(passport);
+
 app.disable('x-powered-by');
 
 app.set('port', port);
@@ -27,7 +35,7 @@ app.set('port', port);
 */
 usersRoutes(app);
 
-server.listen(3000, '172.22.48.1' || 'localhost', function() {
+server.listen(3000, '172.28.16.1' || 'localhost', function() {
     console.log('Aplicação de NodeJS ' +port+ ' Iniciada...')
 });
 

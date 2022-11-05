@@ -4,3 +4,4 @@ npm i http
 npm i cors
 npm i morgan
 npm i mysql
+npm i bcryptjs
