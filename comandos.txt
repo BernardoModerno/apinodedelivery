@@ -5,3 +5,5 @@ npm i cors
 npm i morgan
 npm i mysql
 npm i bcryptjs
+npm i @google-cloud/storage
+npm i multer

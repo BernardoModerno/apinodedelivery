@@ -5,6 +5,7 @@ const server = http.createServer(app);
 const logger = require('morgan');
 const cors = require('cors');
 const passport = require('passport');
+const multer = require('multer');
 
 /*
 * IMPORTAR ROTAS
@@ -30,22 +31,20 @@ app.disable('x-powered-by');
 
 app.set('port', port);
 
+const upload = multer({
+    storage: multer.memoryStorage()
+});
+
 /*
-* Chamar ROTAS
+* CHAMADA DAS ROTAS
 */
-usersRoutes(app);
+usersRoutes(app, upload);
+
 
 server.listen(3000, '172.28.16.1' || 'localhost', function() {
-    console.log('Aplicação de NodeJS ' +port+ ' Iniciada...')
+    console.log('Aplicação de NodeJS ' + port + ' Iniciada...')
 });
 
-app.get('/', (req, res) => {
-    res.send('Rota raiz do Backend');
-});
-
-app.get('/teste', (req, res) => {
-    res.send('Rota teste do Backend');
-});
 
 // ERROR HANDLER
 app.use((err, req, res, next) => {
@@ -53,7 +52,16 @@ app.use((err, req, res, next) => {
     res.status(err.status || 500).send(err.stack);
 });
 
+app.get('/',  (req, res) => {
+    res.send('Rota raiz do backend');
+});
+
+
 module.exports = {
     app: app,
     server: server
 }
+
+// 200 - ES UN RESPUESTA EXITOSA
+// 404 - SIGNIFICA QUE LA URL NO EXISTE
+// 500 - ERROR INTERNO DEL SERVIDOR
