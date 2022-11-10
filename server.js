@@ -8,9 +8,10 @@ const passport = require('passport');
 const multer = require('multer');
 
 /*
-* IMPORTAR ROTAS
+* IMPORTAR RUTAS
 */
 const usersRoutes = require('./routes/userRoutes');
+const categoriesRoutes = require('./routes/categoryRoutes');
 
 const port = process.env.PORT || 3000;
 
@@ -36,10 +37,10 @@ const upload = multer({
 });
 
 /*
-* CHAMADA DAS ROTAS
+* CHAMANDO ROTAS
 */
 usersRoutes(app, upload);
-
+categoriesRoutes(app ,upload);
 
 server.listen(3000, '172.28.16.1' || 'localhost', function() {
     console.log('Aplicação de NodeJS ' + port + ' Iniciada...')
@@ -62,6 +63,6 @@ module.exports = {
     server: server
 }
 
-// 200 - ES UN RESPUESTA EXITOSA
-// 404 - SIGNIFICA QUE LA URL NO EXISTE
-// 500 - ERROR INTERNO DEL SERVIDOR
+// 200 - ok
+// 404 - SIGNIFICA QUE A URL Não EXISTE
+// 500 - ERROR INTERNO Do SERVIDOR

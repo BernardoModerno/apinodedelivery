@@ -23,7 +23,7 @@ Rol.create = (id_user, id_rol, result) => {
                 result(err, null);
             }
             else {
-                console.log('Usuario obtido:', res.insertId);
+                console.log('Usuário obtido:', res.insertId);
                 result(null, res.insertId);
             }
         }
