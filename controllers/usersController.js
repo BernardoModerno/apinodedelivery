@@ -108,18 +108,18 @@ module.exports = {
             if (err) {
                 return res.status(501).json({
                     success: false,
-                    message: 'Hubo un error con el registro del usuario',
+                    message: 'Houve um error com o registro do usuário',
                     error: err
                 });
             }
 
             user.id = `${data}`;
             const token = jwt.sign({id: user.id, email: user.email}, keys.secretOrKey, {});
-            user.session_token = token;
+            user.session_token = `JWT ${token}`;
 
             return res.status(201).json({
                 success: true,
-                message: 'El registro se realizo correctamente',
+                message: 'O registro se realizou corretamente',
                 data: user
             });
 
