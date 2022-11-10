@@ -1,6 +1,7 @@
 const User = require('../models/user');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
+const Rol = require('../models/rol');
 const keys = require('../config/keys');
 const storage = require('../utils/cloud_storage');
 
@@ -117,10 +118,22 @@ module.exports = {
             const token = jwt.sign({id: user.id, email: user.email}, keys.secretOrKey, {});
             user.session_token = `JWT ${token}`;
 
-            return res.status(201).json({
-                success: true,
-                message: 'O registro se realizou corretamente',
-                data: user
+            Rol.create(user.id, 3, (err, data) => {
+                
+                if (err) {
+                    return res.status(501).json({
+                        success: false,
+                        message: 'Houve um erro com o registro do rol do usuário',
+                        error: err
+                    });
+                }
+                
+                return res.status(201).json({
+                    success: true,
+                    message: 'O registro se realizou corretamente',
+                    data: user
+                });
+
             });
 
         });
