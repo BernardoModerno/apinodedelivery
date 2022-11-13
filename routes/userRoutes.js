@@ -16,5 +16,4 @@ module.exports = (app, upload) => {
     app.put('/api/users/update', passport.authenticate('jwt', {session: false}) , upload.array('image', 1), usersController.updateWithImage);
     app.put('/api/users/updateWithoutImage', passport.authenticate('jwt', {session: false}), usersController.updateWithoutImage);
 
-
 }

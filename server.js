@@ -42,7 +42,7 @@ const upload = multer({
 usersRoutes(app, upload);
 categoriesRoutes(app ,upload);
 
-server.listen(3000, '172.28.16.1' || 'localhost', function() {
+server.listen(3000, '172.24.96.1' || 'localhost', function() {
     console.log('Aplicação de NodeJS ' + port + ' Iniciada...')
 });
 
