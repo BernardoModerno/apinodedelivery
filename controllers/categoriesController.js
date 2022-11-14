@@ -51,6 +51,64 @@ module.exports = {
         });
 
     },
+    async updateWithImage(req, res) {
+
+        const category = JSON.parse(req.body.category); // CAPTURA OS DADOS QUE O CLIENTE ENVIA
+
+        const files = req.files;
+
+        if (files.length > 0) {
+            const path = `image_${Date.now()}`;
+            const url = await storage(files[0], path);
+
+            if (url != undefined && url != null) {
+                category.image = url;
+            }
+        }
+
+        Category.update(category, (err, id) => {
+
+        
+            if (err) {
+                return res.status(501).json({
+                    success: false,
+                    message: 'Houve um error com a atualização da categoria',
+                    error: err
+                });
+            }
+
+            return res.status(201).json({
+                success: true,
+                message: 'A categoria se atualizou corretamente',
+                data: `${id}`
+            });
+        });
+
+    },
+    async update(req, res) {
+
+        const category = req.body; // CAPTURA OS DADOS QUE O CLIENTE ENVIA
+        console.log('CATEGORIA: ', category);
+    
+        Category.update(category, (err, id) => {
+
+        
+            if (err) {
+                return res.status(501).json({
+                    success: false,
+                    message: 'Houve um error com a atualização da categoria',
+                    error: err
+                });
+            }
+
+            return res.status(201).json({
+                success: true,
+                message: 'A categoria se atualizou corretamente',
+                data: `${id}`
+            });
+        });
+
+    },
 
     async delete(req, res) {
         const id = req.params.id;
