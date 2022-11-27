@@ -28,7 +28,43 @@ Product.findByCategory = (id_category, result) => {
                 result(err, null);
             }
             else {
-                console.log('Id do novo produto:', res);
+                console.log('Id de la nuevo producto:', res);
+                result(null, res);
+            }
+        }
+    );
+}
+
+Product.findByNameAndCategory = (name, id_category, result) => {
+    const sql = `
+    SELECT
+        CONVERT(P.id, char) AS id,
+        P.name,
+        P.description,
+        P.price,
+        P.image1,
+        P.image2,
+        P.image3,
+        CONVERT(P.id_category, char) AS id_category
+    FROM
+        products as P
+    WHERE 
+        P.id_category = ? AND LOWER(P.name) LIKE ?
+    `;
+
+    db.query(
+        sql,
+        [
+            id_category,
+            `%${name.toLowerCase()}%`
+        ],
+        (err, res) => {
+            if (err) {
+                console.log('Error:', err);
+                result(err, null);
+            }
+            else {
+                console.log('Id de la nuevo producto:', res);
                 result(null, res);
             }
         }
@@ -72,7 +108,7 @@ Product.create = (product, result) => {
                 result(err, null);
             }
             else {
-                console.log('Id do novo producto:', res.insertId);
+                console.log('Id de la nuevo producto:', res.insertId);
                 result(null, res.insertId);
             }
         }
@@ -80,7 +116,6 @@ Product.create = (product, result) => {
     )
 
 }
-
 
 Product.update = (product, result) => {
 
@@ -119,35 +154,14 @@ Product.update = (product, result) => {
                 result(err, null);
             }
             else {
-                console.log('Id do produto atualizado:', product.id);
+                console.log('Id del producto actualizado:', product.id);
                 result(null, product.id);
             }
         }
+
     )
+
 }
 
-Product.delete = (id, result) => {
-    const sql = `
-    DELETE FROM
-        products
-    WHERE
-        id = ?
-    `;
-
-    db.query(
-        sql,
-        [id],
-        (err, res) => {
-            if (err) {
-                console.log('Error:', err);
-                result(err, null);
-            }
-            else {
-                console.log('Id do produto eliminado:', id);
-                result(null, id);
-            }
-        }
-    )
-}
 
 module.exports = Product;

@@ -6,6 +6,19 @@ const logger = require('morgan');
 const cors = require('cors');
 const passport = require('passport');
 const multer = require('multer');
+const io = require('socket.io')(server);
+const mercadopago = require('mercadopago');
+mercadopago.configure({
+    sandbox: true,
+    access_token: 'TEST-6028900970379574-062302-e3e5d11b7871ee742832e6351694608f-191014229'
+});
+
+
+
+/*
+* IMPORTAR SOCKETS
+*/
+const ordersSocket = require('./sockets/ordersSocket');
 
 /*
 * IMPORTAR RUTAS
@@ -13,6 +26,9 @@ const multer = require('multer');
 const usersRoutes = require('./routes/userRoutes');
 const categoriesRoutes = require('./routes/categoryRoutes');
 const productRoutes = require('./routes/productRoutes');
+const addressRoutes = require('./routes/addressRoutes');
+const ordersRoutes = require('./routes/orderRoutes');
+const mercadoPagoRoutes = require('./routes/mercadoPagoRoutes');
 
 const port = process.env.PORT || 3000;
 
@@ -33,19 +49,28 @@ app.disable('x-powered-by');
 
 app.set('port', port);
 
+/*
+* LLAMADO A LOS SOCKETS
+*/
+ordersSocket(io);
+
 const upload = multer({
     storage: multer.memoryStorage()
 });
 
 /*
-* CHAMANDO ROTAS
+* LLAMADO DE LAS RUTAS
 */
 usersRoutes(app, upload);
-categoriesRoutes(app ,upload);
-productRoutes(app ,upload);
+categoriesRoutes(app);
+addressRoutes(app);
+productRoutes(app, upload);
+ordersRoutes(app);
+mercadoPagoRoutes(app);
 
-server.listen(3000, '172.24.96.1' || 'localhost', function() {
-    console.log('Aplicação de NodeJS ' + port + ' Iniciada...')
+
+server.listen(3000, '192.168.100.17' || 'localhost', function() {
+    console.log('Aplicacion de NodeJS ' + port + ' Iniciada...')
 });
 
 
@@ -56,7 +81,7 @@ app.use((err, req, res, next) => {
 });
 
 app.get('/',  (req, res) => {
-    res.send('Rota raiz do backend');
+    res.send('Ruta raiz del backend');
 });
 
 
@@ -65,6 +90,6 @@ module.exports = {
     server: server
 }
 
-// 200 - ok
-// 404 - SIGNIFICA QUE A URL Não EXISTE
-// 500 - ERROR INTERNO Do SERVIDOR
+// 200 - ES UN RESPUESTA EXITOSA
+// 404 - SIGNIFICA QUE LA URL NO EXISTE
+// 500 - ERROR INTERNO DEL SERVIDOR

@@ -7,13 +7,14 @@ User.findById = (id, result) => {
 
     const sql = `
     SELECT
-        U.id,
+        CONVERT(U.id, char) AS id,
         U.email,
         U.name,
         U.lastname,
         U.image,
         U.phone,
         U.password,
+        U.notification_token,
         JSON_ARRAYAGG(
             JSON_OBJECT(
                 'id', CONVERT(R.id, char),
@@ -47,7 +48,6 @@ User.findById = (id, result) => {
                 result(err, null);
             }
             else {
-                console.log('Usuário obtido:', user[0]);
                 result(null, user[0]);
             }
         }
@@ -55,6 +55,42 @@ User.findById = (id, result) => {
 
 }
 
+User.findDeliveryMen = (result) => {
+    const sql = `
+    SELECT
+        CONVERT(U.id, char) AS id,
+        U.email,
+        U.name,
+        U.lastname,
+        U.image,
+        U.phone
+    FROM
+        users AS U
+    INNER JOIN
+        user_has_roles AS UHR
+    ON
+        UHR.id_user = U.id 
+    INNER JOIN
+        roles AS R
+    ON
+        R.id = UHR.id_rol
+    WHERE
+        R.id = 2;
+    `;
+
+    db.query(
+        sql,
+        (err, data) => {
+            if (err) {
+                console.log('Error:', err);
+                result(err, null);
+            }
+            else {
+                result(null, data);
+            }
+        }
+    );
+}
 
 User.findByEmail = (email, result) => {
 
@@ -100,7 +136,7 @@ User.findByEmail = (email, result) => {
                 result(err, null);
             }
             else {
-                console.log('Usuário obtido:', user[0]);
+                console.log('Usuario obtenido:', user[0]);
                 result(null, user[0]);
             }
         }
@@ -146,7 +182,7 @@ User.create = async (user, result) => {
                 result(err, null);
             }
             else {
-                console.log('Id do novo usuário:', res.insertId);
+                console.log('Id del nuevo usuario:', res.insertId);
                 result(null, res.insertId);
             }
         }
@@ -186,7 +222,7 @@ User.update = (user, result) => {
                 result(err, null);
             }
             else {
-                console.log('Usuário atualizado:', user.id);
+                console.log('Usuario actualizado:', user.id);
                 result(null, user.id);
             }
         }
@@ -223,8 +259,41 @@ User.updateWithoutImage = (user, result) => {
                 result(err, null);
             }
             else {
-                console.log('Usuário atualizado:', user.id);
+                console.log('Usuario actualizado:', user.id);
                 result(null, user.id);
+            }
+        }
+    )
+}
+
+
+User.updateNotificationToken = (id, token, result) => {
+
+    const sql = `
+    UPDATE
+        users
+    SET
+        notification_token = ?,
+        updated_at = ?
+    WHERE
+        id = ?
+    `;
+
+    db.query
+    (
+        sql,
+        [
+            token,
+            new Date(),
+            id
+        ],
+        (err, res) => {
+            if (err) {
+                console.log('Error:', err);
+                result(err, null);
+            }
+            else {
+                result(null, id);
             }
         }
     )

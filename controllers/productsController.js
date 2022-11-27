@@ -4,7 +4,7 @@ const asyncForEach = require('../utils/async_foreach');
 
 
 module.exports = {
-    
+
     findByCategory(req, res) {
         const id_category = req.params.id_category;
 
@@ -12,7 +12,24 @@ module.exports = {
             if (err) {
                 return res.status(501).json({
                     success: false,
-                    message: 'Houve um error ao listar as categorias',
+                    message: 'Hubo un error al momento de listar las categorias',
+                    error: err
+                });
+            }
+
+            return res.status(201).json(data);
+        });
+    },
+    
+    findByNameAndCategory(req, res) {
+        const id_category = req.params.id_category;
+        const name = req.params.name;
+
+        Product.findByNameAndCategory(name, id_category, (err, data) => {
+            if (err) {
+                return res.status(501).json({
+                    success: false,
+                    message: 'Hubo un error al momento de listar las categorias',
                     error: err
                 });
             }
@@ -32,7 +49,7 @@ module.exports = {
         if (files.length === 0) {
             return res.status(501).json({
                 success: false,
-                message: 'Error ao registrar o produto não tem imagens',
+                message: 'Error al registrar el producto no tiene imagenes',
             });
         }
         else {
@@ -42,7 +59,7 @@ module.exports = {
                 if (err) {
                     return res.status(501).json({
                         success: false,
-                        message: 'Houve um error com a criação do producto',
+                        message: 'Hubo un error con el registro del producto',
                         error: err
                     });
                 }
@@ -53,14 +70,14 @@ module.exports = {
                         const path = `image_${Date.now()}`;
                         const url = await storage(file, path);
 
-                        if (url != undefined && url != null) { // CRIAR A IMAGEM EM FIREBASE
-                            if (inserts == 0) { //IMAGEM 1
+                        if (url != undefined && url != null) { // CREO LA IMAGEN EN FIREBASE
+                            if (inserts == 0) { //IMAGEN 1
                                 product.image1 = url;
                             }
-                            else if (inserts == 1) { //IMAGEM 2
+                            else if (inserts == 1) { //IMAGEN 2
                                 product.image2 = url;
                             }
-                            else if (inserts == 2) { //IMAGEM 3
+                            else if (inserts == 2) { //IMAGEN 3
                                 product.image3 = url;
                             }
                         }
@@ -69,17 +86,17 @@ module.exports = {
                             if (err) {
                                 return res.status(501).json({
                                     success: false,
-                                    message: 'Houve um error com o registro do produto',
+                                    message: 'Hubo un error con el registro del producto',
                                     error: err
                                 });
                             }
 
                             inserts = inserts + 1;
 
-                            if (inserts == files.length) { // TERMINOU DE ARMAZENAR AS TRES IMAGENS
+                            if (inserts == files.length) { // TERMINO DE ALAMACENAR LAS TRES IMAGENES
                                 return res.status(201).json({
                                     success: true,
-                                    message: 'O produto se armazenou corretamente',
+                                    message: 'El producto se almaceno correctamente',
                                     data: data
                                 });
                             }
@@ -93,116 +110,6 @@ module.exports = {
             });
         }
 
-    },
-
-    update(req, res) {
-        const product = req.body;
-
-        Product.update(product, (err, data) => {
-            if (err) {
-                return res.status(501).json({
-                    success: false,
-                    message: 'Houve um error com o registro do produto',
-                    error: err
-                });
-            }
-
-            return res.status(201).json({
-                success: true,
-                message: 'O produto se atualizou corretamente',
-                data: data
-            });
-        })
-    },
-    updateWithImage(req, res) {
-        const product = JSON.parse(req.body.product); // CAPTURA OS DADOS QUE ENVIA O CLIENTE
-
-        const files = req.files;
-        
-        let inserts = 0; 
-        
-        if (files.length === 0) {
-            return res.status(501).json({
-                success: false,
-                message: 'Error ao registrar o produto não tem imagens',
-            });
-        }
-        else {
-            Product.update(product, (err, id_product) => {
-
-                if (err) {
-                    return res.status(501).json({
-                        success: false,
-                        message: 'Houve um error com a actualização do produto',
-                        error: err
-                    });
-                }
-                
-                product.id = id_product;
-                const start = async () => {
-                    await asyncForEach(files, async (file) => {
-                        const path = `image_${Date.now()}`;
-                        const url = await storage(file, path);
-
-                        if (url != undefined && url != null) { // CRIAR A IMAGEM EM FIREBASE
-                            if (inserts == 0) { //IMAGEM 1
-                                product.image1 = url;
-                            }
-                            else if (inserts == 1) { //IMAGEM 2
-                                product.image2 = url;
-                            }
-                            else if (inserts == 2) { //IMAGEM 3
-                                product.image3 = url;
-                            }
-                        }
-
-                        await Product.update(product, (err, data) => {
-                            if (err) {
-                                return res.status(501).json({
-                                    success: false,
-                                    message: 'Houve um error com a actualização do produto',
-                                    error: err
-                                });
-                            }
-
-                            inserts = inserts + 1;
-
-                            if (inserts == files.length) { // TERMINOU DE ARMAZENAR AS TRES IMAGENS
-                                return res.status(201).json({
-                                    success: true,
-                                    message: 'O produto se atualizou corretamente',
-                                    data: data
-                                });
-                            }
-
-                        });
-                    });
-                }
-    
-                start();
-    
-            });
-        }
-    },
-
-    delete(req, res) {
-        const id = req.params.id;
-
-        Product.delete(id, (err, id) => {
-            if (err) {
-                return res.status(501).json({
-                    success: false,
-                    message: 'Houve um error com ao eliminar o produto',
-                    error: err
-                });
-            }
-
-            return res.status(201).json({
-                success: true,
-                message: 'O producto se eliminou corretamente',
-                data: `${id}`
-            });
-        });
-    },
+    }
 
 }

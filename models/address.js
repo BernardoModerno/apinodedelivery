@@ -1,52 +1,62 @@
 const db = require('../config/config');
 
-const Category = {};
+const Address = {};
 
-Category.getAll = (result) => {
+Address.findByUser = (id_user, result) => {
     const sql = `
     SELECT
         CONVERT(id, char) AS id,
-        name,
-        description
+        address,
+        neighborhood,
+        lat,
+        lng,
+        CONVERT(id_user, char) AS id_user
     FROM
-        categories
-    ORDER BY
-        name
+        address
+    WHERE
+        id_user = ?
     `;
 
     db.query(
-        sql,
+        sql, 
+        id_user,
         (err, data) => {
             if (err) {
                 console.log('Error:', err);
                 result(err, null);
             }
             else {
-                console.log('Categorias:', data);
                 result(null, data);
             }
         }
+
     )
 }
 
-Category.create = (category, result) => {
+Address.create = (address, result) => {
 
     const sql = `
     INSERT INTO
-        categories(
-            name,
-            description,
+        address(
+            address,
+            neighborhood,
+            lat,
+            lng,
+            id_user,
             created_at,
             updated_at   
         )
-    VALUES(?, ?, ?, ?)
+    VALUES(?, ?, ?, ?, ?, ?, ?)
     `;
 
     db.query(
         sql, 
         [
-            category.name,
-            category.description,
+            address.address,
+            address.neighborhood,
+            address.lat,
+            address.lng,
+            address.id_user,
             new Date(),
             new Date(),
         ],
@@ -56,7 +66,7 @@ Category.create = (category, result) => {
                 result(err, null);
             }
             else {
-                console.log('Id de la nueva categoria:', res.insertId);
+                console.log('Id de la nueva direccion:', res.insertId);
                 result(null, res.insertId);
             }
         }
@@ -65,5 +75,4 @@ Category.create = (category, result) => {
 
 }
 
-
-module.exports = Category;
+module.exports = Address;

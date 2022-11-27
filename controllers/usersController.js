@@ -7,6 +7,21 @@ const storage = require('../utils/cloud_storage');
 
 module.exports = {
 
+    findDeliveryMen(req, res) {
+        User.findDeliveryMen((err, data) => {
+            if (err) {
+                return res.status(501).json({
+                    success: false,
+                    message: 'Hubo un error con al listar los repartidores',
+                    error: err
+                });
+            }
+
+            
+            return res.status(201).json(data);
+        });
+    },
+
     login(req, res) {
 
         const email = req.body.email;
@@ -15,20 +30,19 @@ module.exports = {
         User.findByEmail(email, async (err, myUser) => {
             
             console.log('Error ', err);
-            console.log('USUÁRIO ', myUser);
 
             if (err) {
                 return res.status(501).json({
                     success: false,
-                    message: 'Houve um error com o registro do usuário',
+                    message: 'Hubo un error con el registro del usuario',
                     error: err
                 });
             }
 
             if (!myUser) {
-                return res.status(401).json({ // O CLIENTE NÃO TEM AUTORIZAÇÃO PARA REALIZAR ESTA PETIÇÃO (401)
+                return res.status(401).json({ // EL CLIENTE NO TIENE AUTORIZACION PARTA REALIZAR ESTA PETICION (401)
                     success: false,
-                    message: 'O email não foi encontrado'
+                    message: 'El email no fue encontrado'
                 });
             }
 
@@ -50,15 +64,15 @@ module.exports = {
 
                 return res.status(201).json({
                     success: true,
-                    message: 'O usuário foi autenticado',
-                    data: data // O ID DO NOVO USUÁRIO QUE SE REGISTROU
+                    message: 'El usuario fue autenticado',
+                    data: data // EL ID DEL NUEVO USUARIO QUE SE REGISTRO
                 });
 
             }
             else {
-                return res.status(401).json({ // O CLIENTE NÃO TEM AUTORIZAÇÃO PARA REALIZAR ESTA PETIÇÃO (401)
+                return res.status(401).json({ // EL CLIENTE NO TIENE AUTORIZACION PARTA REALIZAR ESTA PETICION (401)
                     success: false,
-                    message: 'O password está incorreto'
+                    message: 'El password es incorrecto'
                 });
             }
 
@@ -68,21 +82,21 @@ module.exports = {
 
     register(req, res) {
 
-        const user = req.body; // CAPTURA OS DADOS QUE O CLIENTE ENVIA
+        const user = req.body; // CAPTURO LOS DATOS QUE ME ENVIE EL CLIENTE
         User.create(user, (err, data) => {
 
             if (err) {
                 return res.status(501).json({
                     success: false,
-                    message: 'Houve um error com o registro do usuário',
+                    message: 'Hubo un error con el registro del usuario',
                     error: err
                 });
             }
 
             return res.status(201).json({
                 success: true,
-                message: 'O registro se realizou corretamente',
-                data: data // O ID DO NOVO USUÁRIO QUE SE REGISTROU
+                message: 'El registro se realizo correctamente',
+                data: data // EL ID DEL NUEVO USUARIO QUE SE REGISTRO
             });
 
         });
@@ -90,7 +104,7 @@ module.exports = {
     },
     async registerWithImage(req, res) {
 
-        const user = JSON.parse(req.body.user); // CAPTURA OS DADOS QUE O CLIENTE ENVIA
+        const user = JSON.parse(req.body.user); // CAPTURO LOS DATOS QUE ME ENVIE EL CLIENTE
 
         const files = req.files;
 
@@ -109,7 +123,7 @@ module.exports = {
             if (err) {
                 return res.status(501).json({
                     success: false,
-                    message: 'Houve um error com o registro do usuario',
+                    message: 'Hubo un error con el registro del usuario',
                     error: err
                 });
             }
@@ -124,14 +138,14 @@ module.exports = {
                 if (err) {
                     return res.status(501).json({
                         success: false,
-                        message: 'Houve um error com o registro do rol de usuario',
+                        message: 'Hubo un error con el registro del rol de usuario',
                         error: err
                     });
                 }
                 
                 return res.status(201).json({
                     success: true,
-                    message: 'O registro se realizou corretamente',
+                    message: 'El registro se realizo correctamente',
                     data: user
                 });
 
@@ -145,7 +159,7 @@ module.exports = {
 
     async updateWithImage(req, res) {
 
-        const user = JSON.parse(req.body.user); // CAPTURA OS DADOS QUE O CLIENTE ENVIA
+        const user = JSON.parse(req.body.user); // CAPTURO LOS DATOS QUE ME ENVIE EL CLIENTE
 
         const files = req.files;
 
@@ -160,30 +174,40 @@ module.exports = {
 
         User.update(user, (err, data) => {
 
-        
+            
             if (err) {
                 return res.status(501).json({
                     success: false,
-                    message: 'Houve um error com o registro do usuario',
+                    message: 'Hubo un error con el registro del usuario',
                     error: err
                 });
             }
 
-            return res.status(201).json({
-                success: true,
-                message: 'O usuario se atualizou corretamente',
-                data: user
-            });
-        
+            User.findById(data, (err, myData) => {
+                if (err) {
+                    return res.status(501).json({
+                        success: false,
+                        message: 'Hubo un error con el registro del usuario',
+                        error: err
+                    });
+                }
+                
+                myData.session_token = user.session_token;
+                myData.roles = JSON.parse(myData.roles);
 
+                return res.status(201).json({
+                    success: true,
+                    message: 'El usuario se actualizo correctamente',
+                    data: myData
+                });
+            })
         });
 
     },
 
     async updateWithoutImage(req, res) {
 
-        const user = req.body; // CAPTURA OS DADOS QUE O CLIENTE ENVIA
-        console.log('Dados do CLIENTE ', user);
+        const user = req.body; // CAPTURO LOS DATOS QUE ME ENVIE EL CLIENTE
 
         User.updateWithoutImage(user, (err, data) => {
 
@@ -191,18 +215,58 @@ module.exports = {
             if (err) {
                 return res.status(501).json({
                     success: false,
-                    message: 'Houve um error com o registro do usuario',
+                    message: 'Hubo un error con el registro del usuario',
+                    error: err
+                });
+            }
+
+            User.findById(data, (err, myData) => {
+                if (err) {
+                    return res.status(501).json({
+                        success: false,
+                        message: 'Hubo un error con el registro del usuario',
+                        error: err
+                    });
+                }
+                
+                myData.session_token = user.session_token;
+                myData.roles = JSON.parse(myData.roles);
+
+                return res.status(201).json({
+                    success: true,
+                    message: 'El usuario se actualizo correctamente',
+                    data: myData
+                });
+            })
+
+            
+        });
+
+    },
+    
+    
+    async updateNotificationToken(req, res) {
+
+        const id = req.body.id; 
+        const token = req.body.token; 
+
+        User.updateNotificationToken(id, token, (err, id_user) => {
+
+        
+            if (err) {
+                return res.status(501).json({
+                    success: false,
+                    message: 'Hubo un error actualizando el token de notificaciones del usuario',
                     error: err
                 });
             }
 
             return res.status(201).json({
                 success: true,
-                message: 'O usuario se atualizou corretamente',
-                data: user
+                message: 'El token se actualizo correctamente',
+                data: id_user
             });
-        
-
+            
         });
 
     },
